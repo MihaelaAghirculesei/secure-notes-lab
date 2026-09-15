@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ note['title'] }} — SecureNotes Lab{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ note['title'] }}</h1>
+  <p class="muted">Note #{{ note['id'] }} — owned by user_id {{ note['user_id'] }}</p>
+
+  <!-- VULNERABILITY 2: the |safe filter disables Jinja2's automatic escaping -->
+  <div class="note-content">{{ note['content'] | safe }}</div>
+
+  <div class="hint">
+    This page doesn't check whether <code>note['user_id']</code> matches
+    the logged-in user (IDOR), and disables content escaping with
+    <code>|safe</code> (Stored XSS).
+  </div>
+</div>
+{% endblock %}

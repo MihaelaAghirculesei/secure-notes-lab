@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ note['title'] }} — SecureNotes Lab{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ note['title'] }}</h1>
+  <p class="muted">Note #{{ note['id'] }}</p>
+
+  <!-- FIX 2: no |safe filter, Jinja2 performs automatic escaping -->
+  <div class="note-content">{{ note['content'] }}</div>
+</div>
+{% endblock %}

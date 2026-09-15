@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}My notes — SecureNotes Lab{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>My notes</h1>
+  <p class="muted">Logged in as <strong>{{ username }}</strong></p>
+  <ul class="note-list">
+    {% for note in notes %}
+      <li>
+        <a href="{{ url_for('view_note', note_id=note['id']) }}">{{ note['title'] }}</a>
+        <span class="muted">#{{ note['id'] }}</span>
+      </li>
+    {% else %}
+      <li class="muted">No notes yet.</li>
+    {% endfor %}
+  </ul>
+  <div class="hint">
+    Try visiting another user's note by changing the ID in the URL:
+    here you'll get a 403 error, not their content.
+  </div>
+</div>
+{% endblock %}

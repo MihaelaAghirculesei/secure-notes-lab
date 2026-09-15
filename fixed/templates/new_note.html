@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}New note — SecureNotes Lab{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>New note</h1>
+  <form method="POST">
+    <label>Title</label>
+    <input type="text" name="title">
+    <label>Content</label>
+    <textarea name="content"></textarea>
+    <button type="submit">Save</button>
+  </form>
+  <div class="hint">
+    Try pasting the same XSS payload used in the vulnerable version:
+    here it will be shown as plain text, not executed.
+  </div>
+</div>
+{% endblock %}

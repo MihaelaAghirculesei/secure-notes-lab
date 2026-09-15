@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Login — SecureNotes Lab{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Login</h1>
+  <form method="POST">
+    <label>Username</label>
+    <input type="text" name="username" autocomplete="off">
+    <label>Password</label>
+    <input type="password" name="password">
+    <button type="submit">Log in</button>
+  </form>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+  <div class="hint">
+    Demo users: <code>alice / alice123</code>, <code>bob / bob123</code><br>
+    Also try username <code>' OR '1'='1' --</code> with any password.
+  </div>
+</div>
+{% endblock %}

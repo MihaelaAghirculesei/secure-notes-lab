@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}SecureNotes Lab{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">SecureNotes Lab <span class="badge vulnerable">vulnerable</span></div>
+    <nav>
+      {% if session.get('username') %}
+        <a href="{{ url_for('notes') }}">My notes</a>
+        <a href="{{ url_for('new_note') }}">New note</a>
+        <a href="{{ url_for('logout') }}">Logout ({{ session.get('username') }})</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </div>
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Register — SecureNotes Lab{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Register</h1>
+  <form method="POST">
+    <label>Username</label>
+    <input type="text" name="username" autocomplete="off">
+    <label>Password</label>
+    <input type="password" name="password">
+    <button type="submit">Create account</button>
+  </form>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+</div>
+{% endblock %}
