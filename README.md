@@ -20,6 +20,34 @@ Most security portfolios show "I found a bug in an app that was already built" (
 Full details, exploitation steps, and impact: [`docs/VULNERABILITIES.md`](docs/VULNERABILITIES.md)
 Before/after code comparison with mechanism explained: [`docs/REMEDIATION.md`](docs/REMEDIATION.md)
 
+## Screenshots
+
+### 1. SQL Injection — bypassing login
+
+**Vulnerable version:** logging in with `' OR '1'='1' --` and any password succeeds.
+![SQL injection bypass](docs/screenshots/login-vulnerable-exploit.png)
+
+**Fixed version:** the same payload is rejected.
+![SQL injection blocked](docs/screenshots/login-fixed-rejected.png)
+
+### 2. Stored XSS — script execution
+
+**Vulnerable version:** a note containing a `<script>` payload executes in the browser.
+![XSS executing](docs/screenshots/xss-vulnerable-execution.png)
+
+### 3. IDOR — accessing another user's note
+
+**Vulnerable version:** logged in as alice, visiting `/notes/2` shows bob's private note.
+![IDOR vulnerable](docs/screenshots/idor-vulnerable-access.png)
+
+**Fixed version:** the same request returns a 403 Forbidden.
+![IDOR blocked](docs/screenshots/idor-fixed-403.png)
+
+### 4. Automated proof
+
+All 6 tests pass against the fixed version, proving the fixes hold.
+![pytest passing](docs/screenshots/pytest-passing.png)
+
 ## Tech stack
 
 - Python 3 + Flask (backend, routing, Jinja2 templates)
