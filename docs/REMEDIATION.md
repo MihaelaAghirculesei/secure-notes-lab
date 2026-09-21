@@ -82,6 +82,33 @@ check_password_hash(user["password_hash"], password)
 
 ---
 
+## FIX-05 (bonus) — CSRF → per-session token validated on every POST
+
+**Before** (`vulnerable/app.py`):
+```python
+# any POST from any origin, as long as the session cookie rides along, is accepted
+```
+
+**After** (`fixed/app.py`):
+```python
+def require_csrf_token():
+    expected = session.get("csrf_token")
+    submitted = request.form.get("csrf_token")
+    if not expected or not submitted or not secrets.compare_digest(expected, submitted):
+        abort(403)
+
+# called at the top of every POST branch (login, register, new_note)
+```
+
+with a hidden field in every form (`fixed/templates/*.html`):
+```html
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+```
+
+**Why it works:** the token is a random secret generated server-side and stored in the user's session; it's only ever exposed inside the app's own rendered HTML. The browser's same-origin policy prevents a page on another domain from reading that HTML to extract the token — it can *trigger* a request (forms auto-submit, cookies attach automatically) but it cannot *read* the response to steal the token. Without a matching token, the server has no way to tell a genuine click from a forged one, so it rejects the request. `secrets.compare_digest` is used instead of `==` to avoid leaking the token one byte at a time via response-time differences (a timing attack).
+
+---
+
 ## Why this comparison matters in an interview
 
 Don't just say "I fixed a SQL injection." Be ready to explain **why** the fix works at the mechanism level (not just "you use placeholders"), because that's exactly the follow-up question a technical interviewer will ask — and it's the difference between "I copied a best practice" and "I understood the problem."

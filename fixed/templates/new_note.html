@@ -4,6 +4,7 @@
 <div class="card">
   <h1>New note</h1>
   <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <label>Title</label>
     <input type="text" name="title">
     <label>Content</label>

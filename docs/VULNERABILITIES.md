@@ -91,6 +91,33 @@ In the event of unauthorized access to the database (e.g. via VULN-01 with broad
 
 ---
 
+## VULN-05 (bonus) — CSRF (Cross-Site Request Forgery)
+
+**Component:** `vulnerable/app.py` — `login()`, `register()`, `new_note()` (every state-changing POST)
+**OWASP category:** A01:2021 — Broken Access Control (CSRF was its own OWASP category through the 2013 list; folded into Broken Access Control since 2017, but the mechanism and the fix are unchanged)
+
+### Description
+None of the POST forms include or check any per-session token. The server accepts a POST purely based on the session cookie the browser attaches automatically — it never confirms the request was actually initiated by a page the user is looking at.
+
+### Exploitation steps
+1. Log in to the vulnerable app (e.g. `alice / alice123`) in one browser tab.
+2. In the same browser, open a separate, attacker-controlled page containing an auto-submitting form:
+   ```html
+   <form action="http://127.0.0.1:5000/notes/new" method="POST" id="f">
+     <input type="hidden" name="title" value="pwned">
+     <input type="hidden" name="content" value="posted without your consent">
+   </form>
+   <script>document.getElementById('f').submit()</script>
+   ```
+3. Visiting that page is enough — no click needed.
+
+**Result:** the note is created under alice's account, even though alice never interacted with the vulnerable app's own UI to do it. The same pattern works against `/login` and `/register`.
+
+### Impact
+An attacker can make a logged-in victim's browser perform any state-changing action the app exposes (here: create notes; in a real app, this class of bug has been used to change email/password, transfer funds, or delete data) just by getting them to load a malicious page — no credential theft required.
+
+---
+
 ## Methodological note
 
-These 4 issues are not theoretical textbook cases: they are mistakes found regularly in real code, often introduced due to time pressure or lack of awareness, not gross negligence. The `REMEDIATION.md` file shows how each one is fixed with a targeted change, not a full rewrite of the application — which is also why it's worth learning them well: the fix is almost always simpler than the vulnerability itself, once you know what to look for.
+These issues are not theoretical textbook cases: they are mistakes found regularly in real code, often introduced due to time pressure or lack of awareness, not gross negligence. The `REMEDIATION.md` file shows how each one is fixed with a targeted change, not a full rewrite of the application — which is also why it's worth learning them well: the fix is almost always simpler than the vulnerability itself, once you know what to look for.

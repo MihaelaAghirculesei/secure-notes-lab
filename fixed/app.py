@@ -2,14 +2,15 @@
 SecureNotes Lab — FIXED VERSION
 =====================================
 Same application as the vulnerable version, with the 3 vulnerabilities
-(+ 1 bonus) resolved. Compare line by line with vulnerable/app.py:
+(+ 2 bonus) resolved. Compare line by line with vulnerable/app.py:
 each "FIX N" comment corresponds to the "VULNERABILITY N" in the other
 version.
 
   FIX 1: parameterized queries instead of string concatenation
   FIX 2: no |safe filter -> Jinja2 performs automatic escaping
   FIX 3: explicit authorization check (owner check) on every note
-  FIX bonus: passwords hashed with werkzeug.security instead of plaintext
+  FIX bonus 1: passwords hashed with werkzeug.security instead of plaintext
+  FIX bonus 2: CSRF token required on every state-changing POST
 """
 import os
 import secrets
@@ -29,6 +30,30 @@ def ensure_db():
     init_db()
 
 
+# --- FIX bonus 2: CSRF PROTECTION ---
+# A CSRF token is a random, per-session secret the server expects back on
+# every state-changing POST. An attacker's page can make the browser send
+# a request (forms/fetch auto-attach cookies), but it cannot read this
+# token from our page to include it, since the browser's same-origin
+# policy blocks that. No token (or a wrong one) -> request rejected.
+def get_csrf_token():
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(32)
+    return session["csrf_token"]
+
+
+def require_csrf_token():
+    expected = session.get("csrf_token")
+    submitted = request.form.get("csrf_token")
+    if not expected or not submitted or not secrets.compare_digest(expected, submitted):
+        abort(403)
+
+
+@app.context_processor
+def inject_csrf_token():
+    return {"csrf_token": get_csrf_token()}
+
+
 def current_user():
     return session.get("username")
 
@@ -44,6 +69,7 @@ def index():
 def login():
     error = None
     if request.method == "POST":
+        require_csrf_token()
         username = request.form["username"]
         password = request.form["password"]
 
@@ -70,6 +96,7 @@ def login():
 def register():
     error = None
     if request.method == "POST":
+        require_csrf_token()
         username = request.form["username"]
         password = request.form["password"]
         conn = get_connection()
@@ -112,6 +139,7 @@ def new_note():
     if not current_user():
         return redirect(url_for("login"))
     if request.method == "POST":
+        require_csrf_token()
         title = request.form["title"]
         content = request.form["content"]
         conn = get_connection()
