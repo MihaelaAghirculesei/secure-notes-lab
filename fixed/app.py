@@ -11,12 +11,17 @@ version.
   FIX 3: explicit authorization check (owner check) on every note
   FIX bonus: passwords hashed with werkzeug.security instead of plaintext
 """
+import os
+import secrets
+
 from flask import Flask, request, redirect, url_for, render_template, session, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_connection, init_db
 
 app = Flask(__name__)
-app.secret_key = "dev-secret-key-not-for-production"  # in production: use an environment variable
+# in production: set SECRET_KEY in the environment; falling back to a random
+# key means sessions won't survive a restart, which is fine for this demo
+app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 
 
 @app.before_request
@@ -151,4 +156,5 @@ def view_note(note_id):
 
 if __name__ == "__main__":
     init_db(reset=True)
-    app.run(debug=True, port=5001)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug_mode, port=5001)
