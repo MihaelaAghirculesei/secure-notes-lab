@@ -1,6 +1,7 @@
 # SecureNotes Lab
 
 [![tests](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/tests.yml/badge.svg)](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/tests.yml)
+[![security scan](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/security.yml/badge.svg)](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/security.yml)
 
 A personal notes application built **twice**: once with 4 intentional vulnerabilities (OWASP Top 10), once fixed — with automated tests proving the fixes actually work.
 
