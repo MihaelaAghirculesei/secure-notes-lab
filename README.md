@@ -2,6 +2,7 @@
 
 [![tests](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/tests.yml/badge.svg)](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/tests.yml)
 [![security scan](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/security.yml/badge.svg)](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/security.yml)
+[![latest release](https://img.shields.io/github/v/release/MihaelaAghirculesei/secure-notes-lab)](https://github.com/MihaelaAghirculesei/secure-notes-lab/releases/latest)
 
 A personal notes application built **twice**: once with 4 intentional vulnerabilities (OWASP Top 10), once fixed — with automated tests proving the fixes actually work.
 
