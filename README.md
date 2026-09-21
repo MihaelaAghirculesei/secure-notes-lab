@@ -11,7 +11,7 @@ A personal notes application built **twice**: once with 4 intentional vulnerabil
 
 Most security portfolios show "I found a bug in an app that was already built" (e.g. DVWA, WebGoat). Here it's the other way around: **I wrote the vulnerable code myself, understanding exactly why it's wrong, and then fixed it** — the same cycle a role bridging development and security actually requires in the real world.
 
-## The 4 vulnerabilities (OWASP Top 10)
+## The 4 vulnerabilities (OWASP Top 10) + 1 bonus
 
 | # | Vulnerability | OWASP category | Where |
 |---|---|---|---|
@@ -19,6 +19,7 @@ Most security portfolios show "I found a bug in an app that was already built" (
 | 2 | Stored XSS in note content | A03:2021 – Injection | `vulnerable/templates/note_detail.html` |
 | 3 | IDOR in note viewing | A01:2021 – Broken Access Control | `vulnerable/app.py` → `view_note()` |
 | 4 | Passwords stored in plaintext | A02:2021 – Cryptographic Failures | `vulnerable/database.py` |
+| 5 (bonus) | CSRF on every state-changing POST | A01:2021 – Broken Access Control | `vulnerable/app.py` → `login()`, `register()`, `new_note()` |
 
 Full details, exploitation steps, and impact: [`docs/VULNERABILITIES.md`](docs/VULNERABILITIES.md)
 Before/after code comparison with mechanism explained: [`docs/REMEDIATION.md`](docs/REMEDIATION.md)

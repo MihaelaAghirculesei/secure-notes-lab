@@ -4,6 +4,7 @@
 <div class="card">
   <h1>Login</h1>
   <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <label>Username</label>
     <input type="text" name="username" autocomplete="off">
     <label>Password</label>
