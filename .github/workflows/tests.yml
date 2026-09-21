@@ -22,3 +22,22 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ -v
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install security tools
+        run: pip install bandit pip-audit
+
+      - name: Run Bandit (static analysis on fixed/ code)
+        run: bandit -r fixed/
+
+      - name: Run pip-audit (known CVEs in dependencies)
+        run: pip-audit -r requirements.txt
