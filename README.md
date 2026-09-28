@@ -4,7 +4,7 @@
 [![security scan](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/security.yml/badge.svg)](https://github.com/MihaelaAghirculesei/secure-notes-lab/actions/workflows/security.yml)
 [![latest release](https://img.shields.io/github/v/release/MihaelaAghirculesei/secure-notes-lab)](https://github.com/MihaelaAghirculesei/secure-notes-lab/releases/latest)
 
-A personal notes application built **twice**: once with 4 intentional vulnerabilities (OWASP Top 10), once fixed — with automated tests proving the fixes actually work.
+A personal notes application built **twice**: once with 5 intentional vulnerabilities (OWASP Top 10), once fixed — with automated tests proving the fixes actually work.
 
 > Educational/portfolio project. Meant to run **locally only**. The `vulnerable/` folder must never be exposed on the internet or used with real data.
 
@@ -50,7 +50,7 @@ Before/after code comparison with mechanism explained: [`docs/REMEDIATION.md`](d
 
 ### 4. Automated proof
 
-All 6 tests pass against the fixed version, proving the fixes hold.
+All 9 tests pass against the fixed version, proving the fixes hold.
 ![pytest passing](docs/screenshots/pytest-passing.png)
 
 ## Tech stack
@@ -91,13 +91,14 @@ pytest tests/ -v
 The tests prove with code, not just words, that on the fixed version:
 - classic SQL injection payloads are rejected and legitimate login still works;
 - a `<script>` payload is shown as escaped text, not executed;
-- a user cannot view another user's note (403 response).
+- a user cannot view another user's note (403 response);
+- a login or note-creation request without a valid CSRF token is rejected (403 response).
 
 ## Repository structure
 
 ```
 secure-notes-lab/
-├── vulnerable/    # version with the 4 intentional vulnerabilities
+├── vulnerable/    # version with the 5 intentional vulnerabilities
 ├── fixed/         # same app, vulnerabilities fixed
 ├── tests/         # automated tests against the fixed version
 ├── docs/
@@ -108,8 +109,9 @@ secure-notes-lab/
 
 ## What this project demonstrates
 
-- Practical (not just theoretical) understanding of 4 OWASP Top 10 vulnerabilities, from both the attack and defense side.
+- Practical (not just theoretical) understanding of 5 OWASP Top 10 vulnerabilities, from both the attack and defense side.
 - Ability to write automated tests as proof of security, not just proof of functionality.
+- Security baked into the development process, not just the code: CI runs a static analysis scan (Bandit) and a dependency vulnerability scan (pip-audit) as required checks on every PR, `main` is branch-protected on both, and Dependabot keeps dependencies current.
 - A background as a software developer applied to a security problem — the meeting point between the two skill sets.
 
 ## Background
