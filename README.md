@@ -116,7 +116,7 @@ secure-notes-lab/
 
 ## Background
 
-This project is part of a career transition path toward cybersecurity roles (Junior SOC Analyst / Security Analyst), coming from a background as a software developer.
+Built as an application-security deep dive from a developer's point of view: writing the vulnerable code first makes it obvious why each fix works. The same habits (parameterized queries, output escaping, CSRF tokens, security scans as required CI checks) are what I apply in the web applications I build.
 
 ## License
 
