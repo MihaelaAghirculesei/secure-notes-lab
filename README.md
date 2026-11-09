@@ -16,11 +16,13 @@ Most security portfolios show "I found a bug in an app that was already built" (
 
 | # | Vulnerability | OWASP category | Where |
 |---|---|---|---|
-| 1 | SQL Injection in login | A03:2021 – Injection | `vulnerable/app.py` → `login()` |
-| 2 | Stored XSS in note content | A03:2021 – Injection | `vulnerable/templates/note_detail.html` |
-| 3 | IDOR in note viewing | A01:2021 – Broken Access Control | `vulnerable/app.py` → `view_note()` |
-| 4 | Passwords stored in plaintext | A02:2021 – Cryptographic Failures | `vulnerable/database.py` |
-| 5 (bonus) | CSRF on every state-changing POST | A01:2021 – Broken Access Control | `vulnerable/app.py` → `login()`, `register()`, `new_note()` |
+| 1 | SQL Injection in login | A05:2025 – Injection | `vulnerable/app.py` → `login()` |
+| 2 | Stored XSS in note content | A05:2025 – Injection | `vulnerable/templates/note_detail.html` |
+| 3 | IDOR in note viewing | A01:2025 – Broken Access Control | `vulnerable/app.py` → `view_note()` |
+| 4 | Passwords stored in plaintext | A04:2025 – Cryptographic Failures | `vulnerable/database.py` |
+| 5 (bonus) | CSRF on every state-changing POST | A01:2025 – Broken Access Control | `vulnerable/app.py` → `login()`, `register()`, `new_note()` |
+
+Categories follow the [OWASP Top 10:2025](https://owasp.org/Top10/2025/). In the 2021 edition the same flaws were A03 (Injection), A01 (Broken Access Control) and A02 (Cryptographic Failures).
 
 Full details, exploitation steps, and impact: [`docs/VULNERABILITIES.md`](docs/VULNERABILITIES.md)
 Before/after code comparison with mechanism explained: [`docs/REMEDIATION.md`](docs/REMEDIATION.md)
@@ -63,7 +65,7 @@ All 9 tests pass against the fixed version, proving the fixes hold.
 ## How to run the project
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/MihaelaAghirculesei/secure-notes-lab.git
 cd secure-notes-lab
 pip install -r requirements.txt
 ```

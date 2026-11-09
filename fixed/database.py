@@ -1,8 +1,8 @@
 """
 database.py (FIXED VERSION)
 
-Same schema as the vulnerable version, but passwords are stored as
-hashes (see app.py, register()/login() functions using
+Same tables as the vulnerable version, but passwords are stored as
+hashes in `password_hash` (FIX 4) (see app.py, register()/login() functions using
 werkzeug.security), not in plaintext.
 """
 import sqlite3
