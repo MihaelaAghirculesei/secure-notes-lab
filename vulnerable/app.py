@@ -1,11 +1,13 @@
 """
 SecureNotes Lab — VULNERABLE VERSION
 ========================================
-Demo application with 3 intentional vulnerabilities (OWASP Top 10):
+Demo application with 4 intentional vulnerabilities + 1 bonus (OWASP Top 10):
 
-  1. SQL Injection (login)       -> see login()
-  2. Stored XSS (note content)   -> see view_note() / templates/note_detail.html
-  3. IDOR (note viewing)         -> see view_note()
+  1. SQL Injection (login)        -> see login()
+  2. Stored XSS (note content)    -> see view_note() / templates/note_detail.html
+  3. IDOR (note viewing)          -> see view_note()
+  4. Plaintext passwords          -> see register() / database.py
+  5. CSRF, bonus (no token check) -> every state-changing POST
 
 Intended use: local only, for educational/portfolio purposes.
 Never expose this version on the internet or in production.
@@ -70,8 +72,8 @@ def register():
         conn = get_connection()
         cur = conn.cursor()
         try:
-            # Here too: password stored in plaintext (additional vulnerability,
-            # see docs/VULNERABILITIES.md).
+            # --- VULNERABILITY 4: PLAINTEXT PASSWORD ---
+            # Stored as typed: anyone who reads the DB reads every password.
             cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
             conn.commit()
             conn.close()

@@ -7,7 +7,7 @@ Each entry follows the structure of a real vulnerability report: description, ex
 ## VULN-01 — SQL Injection (authentication)
 
 **Component:** `vulnerable/app.py`, `login()` function
-**OWASP category:** A03:2021 — Injection
+**OWASP category:** A05:2025 — Injection (A03:2021)
 
 ### Description
 The login query is built by directly concatenating user input into an f-string, with no sanitization:
@@ -32,7 +32,7 @@ An attacker completely bypasses authentication and can log in as any user (in th
 ## VULN-02 — Stored XSS (note content)
 
 **Component:** `vulnerable/templates/note_detail.html`
-**OWASP category:** A03:2021 — Injection (Cross-Site Scripting)
+**OWASP category:** A05:2025 — Injection, Cross-Site Scripting (A03:2021)
 
 ### Description
 The note content is rendered in the template with the Jinja2 `| safe` filter, which disables automatic HTML escaping:
@@ -56,7 +56,7 @@ In a real-world scenario (a note shared/viewed by other users, e.g. a public com
 ## VULN-03 — IDOR (Insecure Direct Object Reference)
 
 **Component:** `vulnerable/app.py`, `view_note()` function
-**OWASP category:** A01:2021 — Broken Access Control
+**OWASP category:** A01:2025 — Broken Access Control (A01:2021)
 
 ### Description
 The note is fetched from the database based only on the ID passed in the URL, without checking that it belongs to the currently authenticated user:
@@ -81,7 +81,7 @@ Any authenticated user can read any other user's private data simply by enumerat
 ## VULN-04 (bonus) — Passwords stored in plaintext
 
 **Component:** `vulnerable/database.py`, `vulnerable/app.py` (`register()` function)
-**OWASP category:** A02:2021 — Cryptographic Failures
+**OWASP category:** A04:2025 — Cryptographic Failures (A02:2021)
 
 ### Description
 Passwords are stored in the database exactly as entered by the user, with no hashing.
@@ -94,7 +94,7 @@ In the event of unauthorized access to the database (e.g. via VULN-01 with broad
 ## VULN-05 (bonus) — CSRF (Cross-Site Request Forgery)
 
 **Component:** `vulnerable/app.py` — `login()`, `register()`, `new_note()` (every state-changing POST)
-**OWASP category:** A01:2021 — Broken Access Control (CSRF was its own OWASP category through the 2013 list; folded into Broken Access Control since 2017, but the mechanism and the fix are unchanged)
+**OWASP category:** A01:2025 — Broken Access Control (CSRF was its own OWASP category through the 2013 list; folded into Broken Access Control since 2017, but the mechanism and the fix are unchanged)
 
 ### Description
 None of the POST forms include or check any per-session token. The server accepts a POST purely based on the session cookie the browser attaches automatically — it never confirms the request was actually initiated by a page the user is looking at.
