@@ -1,9 +1,9 @@
 """
 database.py (VULNERABLE VERSION)
 
-Note: schema creation and seed data are identical to the fixed version.
-What changes between the two versions is HOW the queries are EXECUTED
-(see app.py), not the schema itself.
+Same tables and seed data as the fixed version, with one difference:
+the users table has a plaintext `password` column (VULNERABILITY 4),
+where the fixed version stores `password_hash`.
 """
 import sqlite3
 import os
@@ -48,7 +48,7 @@ def init_db(reset=False):
     # two versions.
     cur.execute("SELECT COUNT(*) FROM users")
     if cur.fetchone()[0] == 0:
-        # WARNING: plaintext password, vulnerable version only.
+        # VULNERABILITY 4: plaintext password, vulnerable version only.
         cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", ("alice", "alice123"))
         cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", ("bob", "bob123"))
         cur.execute(

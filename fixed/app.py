@@ -1,16 +1,16 @@
 """
 SecureNotes Lab — FIXED VERSION
 =====================================
-Same application as the vulnerable version, with the 3 vulnerabilities
-(+ 2 bonus) resolved. Compare line by line with vulnerable/app.py:
+Same application as the vulnerable version, with the 4 vulnerabilities
+(+ 1 bonus) resolved. Compare line by line with vulnerable/app.py:
 each "FIX N" comment corresponds to the "VULNERABILITY N" in the other
 version.
 
   FIX 1: parameterized queries instead of string concatenation
   FIX 2: no |safe filter -> Jinja2 performs automatic escaping
   FIX 3: explicit authorization check (owner check) on every note
-  FIX bonus 1: passwords hashed with werkzeug.security instead of plaintext
-  FIX bonus 2: CSRF token required on every state-changing POST
+  FIX 4: passwords hashed with werkzeug.security instead of plaintext
+  FIX 5 (bonus): CSRF token required on every state-changing POST
 """
 import os
 import secrets
@@ -30,7 +30,7 @@ def ensure_db():
     init_db()
 
 
-# --- FIX bonus 2: CSRF PROTECTION ---
+# --- FIX 5 (bonus): CSRF PROTECTION ---
 # A CSRF token is a random, per-session secret the server expects back on
 # every state-changing POST. An attacker's page can make the browser send
 # a request (forms/fetch auto-attach cookies), but it cannot read this
@@ -82,7 +82,7 @@ def login():
         user = cur.fetchone()
         conn.close()
 
-        # --- FIX bonus: hash verification, never a plaintext comparison ---
+        # --- FIX 4: hash verification, never a plaintext comparison ---
         if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
             session["username"] = user["username"]
@@ -102,7 +102,7 @@ def register():
         conn = get_connection()
         cur = conn.cursor()
         try:
-            # --- FIX bonus: password hash, never plaintext ---
+            # --- FIX 4: password hash, never plaintext ---
             cur.execute(
                 "INSERT INTO users (username, password_hash) VALUES (?, ?)",
                 (username, generate_password_hash(password)),
