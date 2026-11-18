@@ -24,6 +24,16 @@ app = Flask(__name__)
 # key means sessions won't survive a restart, which is fine for this demo
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 
+# Hardening (beyond the 5 fixes): the session cookie is unreadable from
+# JavaScript (HttpOnly, Flask's default, set explicitly here) and is not
+# sent on cross-site POSTs (SameSite=Lax), a second layer against CSRF.
+# SESSION_COOKIE_SECURE stays off because the demo runs on plain http://
+# localhost; behind HTTPS it must be True.
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
+
 
 @app.before_request
 def ensure_db():
@@ -84,6 +94,10 @@ def login():
 
         # --- FIX 4: hash verification, never a plaintext comparison ---
         if user and check_password_hash(user["password_hash"], password):
+            # Hardening: start a fresh session on login, so nothing set
+            # before authentication (including the pre-login CSRF token)
+            # carries over into the authenticated session.
+            session.clear()
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             return redirect(url_for("notes"))
@@ -116,8 +130,11 @@ def register():
     return render_template("register.html", error=error)
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 def logout():
+    # Hardening: logout changes state, so it is a POST with a CSRF token,
+    # not a GET link that any other page could trigger with an <img> tag.
+    require_csrf_token()
     session.clear()
     return redirect(url_for("login"))
 

@@ -1,8 +1,9 @@
 """
 Automated tests against the FIXED version.
 
-Goal: prove with code (not just words) that the 3 exploits that work
-on the vulnerable version fail on the fixed one.
+Goal: prove with code (not just words) that the 5 exploits that work
+on the vulnerable version fail on the fixed one (SQL injection, stored
+XSS, IDOR, plaintext passwords, CSRF), plus the extra session hardening.
 
 Run with:  pytest tests/ -v
 """
@@ -14,6 +15,7 @@ FIXED_DIR = os.path.join(os.path.dirname(__file__), "..", "fixed")
 sys.path.insert(0, os.path.abspath(FIXED_DIR))
 
 import pytest
+from werkzeug.security import check_password_hash
 import app as fixed_app_module  # noqa: E402
 import database as fixed_db_module  # noqa: E402
 
@@ -118,6 +120,86 @@ class TestCSRFFix:
             data={"title": "forged", "content": "forged", "csrf_token": "not-the-real-token"},
         )
         assert resp.status_code == 403
+
+
+    def test_register_without_csrf_token_is_rejected(self, client):
+        resp = client.post(
+            "/register", data={"username": "mallory", "password": "forged123"}
+        )
+        assert resp.status_code == 403
+
+
+class TestPasswordHashingFix:
+    def test_registered_password_is_not_stored_in_plaintext(self, client):
+        token = get_csrf_token(client, "/register")
+        client.post(
+            "/register",
+            data={"username": "carol", "password": "carol123", "csrf_token": token},
+        )
+        conn = fixed_db_module.get_connection()
+        row = conn.execute(
+            "SELECT password_hash FROM users WHERE username = ?", ("carol",)
+        ).fetchone()
+        conn.close()
+        assert row is not None
+        assert "carol123" not in row["password_hash"]
+        assert check_password_hash(row["password_hash"], "carol123")
+
+    def test_same_password_gets_different_hashes(self, client):
+        # alice and bob are seeded; register two new users with one password
+        for name in ("dave", "erin"):
+            token = get_csrf_token(client, "/register")
+            client.post(
+                "/register",
+                data={"username": name, "password": "shared123", "csrf_token": token},
+            )
+        conn = fixed_db_module.get_connection()
+        hashes = [
+            r["password_hash"]
+            for r in conn.execute(
+                "SELECT password_hash FROM users WHERE username IN ('dave', 'erin')"
+            )
+        ]
+        conn.close()
+        assert len(hashes) == 2
+        assert hashes[0] != hashes[1]  # random salt per password
+
+
+class TestSessionHardening:
+    def test_session_cookie_is_httponly_and_samesite_lax(self, client):
+        resp = login(client, "alice", "alice123")
+        assert resp.status_code == 200
+        cookie = client.get_cookie("session")
+        assert cookie is not None
+        assert cookie.http_only
+        assert cookie.same_site == "Lax"
+
+    def test_csrf_token_is_rotated_on_login(self, client):
+        token_before = get_csrf_token(client, "/login")
+        client.post(
+            "/login",
+            data={"username": "alice", "password": "alice123", "csrf_token": token_before},
+        )
+        token_after = get_csrf_token(client, "/notes/new")
+        assert token_after != token_before
+
+    def test_logout_via_get_is_not_allowed(self, client):
+        login(client, "alice", "alice123")
+        resp = client.get("/logout")
+        assert resp.status_code == 405
+        assert client.get("/notes").status_code == 200  # still logged in
+
+    def test_logout_without_csrf_token_is_rejected(self, client):
+        login(client, "alice", "alice123")
+        resp = client.post("/logout")
+        assert resp.status_code == 403
+
+    def test_logout_with_csrf_token_works(self, client):
+        login(client, "alice", "alice123")
+        token = get_csrf_token(client, "/notes/new")
+        resp = client.post("/logout", data={"csrf_token": token})
+        assert resp.status_code == 302
+        assert client.get("/notes").status_code == 302  # redirected to login
 
 
 def _extract_latest_note_id(html_bytes):

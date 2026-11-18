@@ -42,6 +42,9 @@ Before/after code comparison with mechanism explained: [`docs/REMEDIATION.md`](d
 **Vulnerable version:** a note containing a `<script>` payload executes in the browser.
 ![XSS executing](docs/screenshots/xss-vulnerable-execution.png)
 
+**Fixed version:** the same payload is shown as plain text and never runs.
+![XSS escaped](docs/screenshots/xss-fixed-escaped.png)
+
 ### 3. IDOR — accessing another user's note
 
 **Vulnerable version:** logged in as alice, visiting `/notes/2` shows bob's private note.
@@ -52,7 +55,7 @@ Before/after code comparison with mechanism explained: [`docs/REMEDIATION.md`](d
 
 ### 4. Automated proof
 
-All 9 tests pass against the fixed version, proving the fixes hold.
+All 17 tests pass against the fixed version, proving the fixes hold.
 ![pytest passing](docs/screenshots/pytest-passing.png)
 
 ## Tech stack
@@ -94,7 +97,21 @@ The tests prove with code, not just words, that on the fixed version:
 - classic SQL injection payloads are rejected and legitimate login still works;
 - a `<script>` payload is shown as escaped text, not executed;
 - a user cannot view another user's note (403 response);
-- a login or note-creation request without a valid CSRF token is rejected (403 response).
+- passwords are stored as salted hashes, never in plaintext, and the same password gives two different hashes;
+- a login, registration, note-creation or logout request without a valid CSRF token is rejected (403 response);
+- the extra session hardening holds (see below).
+
+## Extra hardening (fixed version only)
+
+Beyond the 5 fixes, the fixed version also closes three smaller gaps that a reviewer would flag:
+
+- **Fresh session on login:** the session is cleared before the user is logged in, so nothing from before authentication (including the pre-login CSRF token) carries over.
+- **Logout is a POST with a CSRF token:** a plain `GET /logout` link could be triggered by any other site (e.g. with an `<img>` tag); now it returns 405.
+- **Session cookie flags:** `HttpOnly` (not readable from JavaScript) and `SameSite=Lax` (not sent on cross-site POSTs, a second layer against CSRF).
+
+### Known limitations
+
+This is a local demo, so some production controls are deliberately left out: the session cookie is not marked `Secure` (the app runs on plain `http://localhost`), there is no rate limiting or lockout on login, and no password policy on registration.
 
 ## Repository structure
 
