@@ -78,7 +78,7 @@ Any authenticated user can read any other user's private data simply by enumerat
 
 ---
 
-## VULN-04 (bonus) — Passwords stored in plaintext
+## VULN-04 — Passwords stored in plaintext
 
 **Component:** `vulnerable/database.py`, `vulnerable/app.py` (`register()` function)
 **OWASP category:** A04:2025 — Cryptographic Failures (A02:2021)

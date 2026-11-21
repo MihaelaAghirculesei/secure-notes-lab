@@ -12,7 +12,10 @@
       {% if session.get('username') %}
         <a href="{{ url_for('notes') }}">My notes</a>
         <a href="{{ url_for('new_note') }}">New note</a>
-        <a href="{{ url_for('logout') }}">Logout ({{ session.get('username') }})</a>
+        <form class="logout-form" action="{{ url_for('logout') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="link-button">Logout ({{ session.get('username') }})</button>
+        </form>
       {% else %}
         <a href="{{ url_for('login') }}">Login</a>
         <a href="{{ url_for('register') }}">Register</a>
