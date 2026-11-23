@@ -152,3 +152,20 @@ nav a {
 }
 
 nav a:hover { color: var(--text); }
+
+/* Logout is a POST form (see base.html); the button looks like the nav links */
+nav .logout-form { display: inline; margin: 0; }
+
+nav .link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 0 16px; /* override the global button margin-top */
+  border-radius: 0;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+nav .link-button:hover { color: var(--text); }

@@ -58,7 +58,7 @@ return render_template("note_detail.html", note=note)
 
 ---
 
-## FIX-04 (bonus) — Plaintext passwords → salted hashing
+## FIX-04 — Plaintext passwords → salted hashing
 
 **Before** (`vulnerable/database.py` / `app.py`):
 ```python
@@ -106,6 +106,38 @@ with a hidden field in every form (`fixed/templates/*.html`):
 ```
 
 **Why it works:** the token is a random secret generated server-side and stored in the user's session; it's only ever exposed inside the app's own rendered HTML. The browser's same-origin policy prevents a page on another domain from reading that HTML to extract the token — it can *trigger* a request (forms auto-submit, cookies attach automatically) but it cannot *read* the response to steal the token. Without a matching token, the server has no way to tell a genuine click from a forged one, so it rejects the request. `secrets.compare_digest` is used instead of `==` to avoid leaking the token one byte at a time via response-time differences (a timing attack).
+
+---
+
+## Extra hardening (fixed version only)
+
+These are not part of the 5 vulnerabilities, but they are the follow-up questions a reviewer asks once the main fixes are in.
+
+**Fresh session on login** (`fixed/app.py`, `login()`):
+```python
+if user and check_password_hash(user["password_hash"], password):
+    session.clear()
+    session["user_id"] = user["id"]
+```
+Anything stored in the session before authentication (here, the pre-login CSRF token) is dropped, so a value an attacker managed to plant or observe before login is worthless afterwards.
+
+**Logout as a POST with a CSRF token** (`fixed/app.py`, `logout()`; `fixed/templates/base.html`):
+```python
+@app.route("/logout", methods=["POST"])
+def logout():
+    require_csrf_token()
+    session.clear()
+```
+A state-changing action behind a `GET` link can be triggered by any page (`<img src="http://127.0.0.1:5001/logout">`). As a POST with a token it follows the same rule as every other state change.
+
+**Session cookie flags** (`fixed/app.py`):
+```python
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
+```
+`HttpOnly` keeps the cookie out of reach of JavaScript, which limits what an XSS can steal. `SameSite=Lax` stops the browser from attaching the cookie to cross-site POSTs, a second layer behind the CSRF token. `Secure` is left off only because the demo runs on plain `http://localhost`; behind HTTPS it must be on.
 
 ---
 
